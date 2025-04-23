@@ -1,8 +1,32 @@
 from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
+import boto3
+import os
 
 app = Flask(__name__)
+
+# AWS конфигурация
+S3_BUCKET = "название-твоего-бакета"
+MODEL_FILES = {
+    "model": "model.pkl",
+    "le_payment": "le_payment.pkl",
+    "le_status": "le_status.pkl"
+}
+
+# Функция загрузки с S3
+def download_from_s3(filename):
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.environ.get("AWS_REGION")
+    )
+    s3.download_file(S3_BUCKET, filename, filename)
+
+# Загружаем все нужные файлы
+for key, filename in MODEL_FILES.items():
+    download_from_s3(filename)
 
 # Загружаем модель и энкодеры
 model = joblib.load("model.pkl")
@@ -32,7 +56,6 @@ def predict():
         # Убедимся, что порядок фичей правильный
         input_df = input_df[features]
 
-        # Прогнозируем
         prediction = model.predict(input_df)[0]
 
         return jsonify({"prediction": int(prediction)})
