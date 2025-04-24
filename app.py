@@ -9,7 +9,7 @@ app = Flask(__name__)
 MODEL_FILES = {
     "model": {
         "filename": "model.pkl",
-        "gdrive_id": "GOOGLE_DRIVE_ID_МОДЕЛИ"
+        "gdrive_id": "https://drive.google.com/file/d/1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS/view?usp=sharing"
     },
     "le_payment": {
         "filename": "le_payment.pkl",
