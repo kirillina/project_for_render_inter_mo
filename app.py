@@ -18,9 +18,9 @@ MODEL_FILES = {
 def download_from_s3(filename):
     s3 = boto3.client(
         "s3",
-        aws_access_key_id=os.environ.get("AIB2TgSSQmh0cY6hgTP0VXLYa17FVzX1R2XFS6Vd"),
-        aws_secret_access_key=os.environ.get("AKIAXG7DKKNLSUFIFN54"),
-        region_name=os.environ.get("us-east-1")
+        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.environ.get("AWS_REGION")
     )
     s3.download_file(S3_BUCKET, filename, filename)
 
