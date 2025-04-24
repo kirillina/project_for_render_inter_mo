@@ -1,32 +1,37 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
 import joblib
 import pandas as pd
-import boto3
 import os
 
 app = Flask(__name__)
 
-# AWS конфигурация
-S3_BUCKET = "ml-model-bucket-inter"
+# Модели и энкодеры
 MODEL_FILES = {
-    "model": "model.pkl",
-    "le_payment": "le_payment.pkl",
-    "le_status": "le_status.pkl"
+    "model": {
+        "filename": "model.pkl",
+        "gdrive_id": "GOOGLE_DRIVE_ID_МОДЕЛИ"
+    },
+    "le_payment": {
+        "filename": "le_payment.pkl",
+        "gdrive_id": "GOOGLE_DRIVE_ID_PAYMENT"
+    },
+    "le_status": {
+        "filename": "le_status.pkl",
+        "gdrive_id": "GOOGLE_DRIVE_ID_STATUS"
+    }
 }
 
-# Функция загрузки с S3
-def download_from_s3(filename):
-    s3 = boto3.client(
-        "s3",
-        aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-        region_name=os.environ.get("AWS_REGION")
-    )
-    s3.download_file(S3_BUCKET, filename, filename)
+#Загрузка с Google Drive
+def download_from_gdrive(file_id, filename):
+    import gdown
+    url = f"https://drive.google.com/uc?id={file_id}"
+    gdown.download(url, filename, quiet=False)
 
-# Загружаем все нужные файлы
-for key, filename in MODEL_FILES.items():
-    download_from_s3(filename)
+# Проверяем наличие и загружаем при необходимости
+for key, fileinfo in MODEL_FILES.items():
+    if not os.path.exists(fileinfo["filename"]):
+        print(f"Загружаем {fileinfo['filename']} с Google Drive...")
+        download_from_gdrive(fileinfo["gdrive_id"], fileinfo["filename"])
 
 # Загружаем модель и энкодеры
 model = joblib.load("model.pkl")
@@ -57,8 +62,9 @@ def predict():
         input_df = input_df[features]
 
         prediction = model.predict(input_df)[0]
+        label = le_status.inverse_transform([prediction])[0]
 
-        return jsonify({"prediction": int(prediction)})
+        return jsonify({"prediction": str(label)})
     except Exception as e:
         return jsonify({"error": str(e)})
 
