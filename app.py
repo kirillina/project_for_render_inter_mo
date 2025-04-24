@@ -9,7 +9,7 @@ app = Flask(__name__)
 MODEL_FILES = {
     "model": {
         "filename": "model.pkl",
-        "gdrive_id": "https://drive.google.com/file/d/1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS/view?usp=sharing"
+        "gdrive_id": "1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS"
     },
     "le_payment": {
         "filename": "le_payment.pkl",
@@ -24,8 +24,9 @@ MODEL_FILES = {
 #Загрузка с Google Drive
 def download_from_gdrive(file_id, filename):
     import gdown
-    url = f"https://drive.google.com/uc?id=1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS"
+    url = f"https://drive.google.com/uc?id={file_id}&confirm=t"
     gdown.download(url, filename, quiet=False)
+
 
 # Проверяем наличие и загружаем при необходимости
 for key, fileinfo in MODEL_FILES.items():
