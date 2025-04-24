@@ -24,7 +24,7 @@ MODEL_FILES = {
 #Загрузка с Google Drive
 def download_from_gdrive(file_id, filename):
     import gdown
-    url = f"https://drive.google.com/uc?id={file_id}"
+    url = f"https://drive.google.com/file/d/1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS/view?usp=drive_link"
     gdown.download(url, filename, quiet=False)
 
 # Проверяем наличие и загружаем при необходимости
