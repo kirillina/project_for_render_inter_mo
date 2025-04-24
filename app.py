@@ -11,7 +11,6 @@ MODEL_FILES = {
     "model": {
         "filename": "model.pkl",
         "gdrive_id": "1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS"
-        
     },
     "le_payment": {
         "filename": "le_payment.pkl",
