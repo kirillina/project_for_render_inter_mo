@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
 import joblib
 import pandas as pd
 import os
+import gdown
 
 app = Flask(__name__)
 
@@ -10,37 +11,40 @@ MODEL_FILES = {
     "model": {
         "filename": "model.pkl",
         "gdrive_id": "1TKHOQ0TrTK8v3o13Z6tz1E2pbHE-ioTS"
+        
     },
     "le_payment": {
         "filename": "le_payment.pkl",
-        "gdrive_id": "GOOGLE_DRIVE_ID_PAYMENT"
+        # Для le_payment и le_status файлы уже в репозитории, так что нет необходимости в gdrive_id
     },
     "le_status": {
         "filename": "le_status.pkl",
-        "gdrive_id": "GOOGLE_DRIVE_ID_STATUS"
     }
 }
 
 # Загрузка с Google Drive
 def download_from_gdrive(file_id, filename):
-    import gdown
     url = f"https://drive.google.com/uc?id={file_id}&confirm=t"
     gdown.download(url, filename, quiet=False)
 
-# Проверяем наличие и загружаем при необходимости
-for key, fileinfo in MODEL_FILES.items():
-    if not os.path.exists(fileinfo["filename"]):
-        print(f"Загружаем {fileinfo['filename']} с Google Drive...")
-        download_from_gdrive(fileinfo["gdrive_id"], fileinfo["filename"])
+# Проверка и загрузка моделей и энкодеров
+def load_model_files():
+    # Проверяем, есть ли файлы в директории
+    if not os.path.exists(MODEL_FILES["model"]["filename"]):
+        print(f"Загружаем {MODEL_FILES['model']['filename']} с Google Drive...")
+        download_from_gdrive(MODEL_FILES["model"]["gdrive_id"], MODEL_FILES["model"]["filename"])
 
-# Загружаем модель и энкодеры
-try:
-    model = joblib.load("model.pkl")
-    le_payment = joblib.load("le_payment.pkl")
-    le_status = joblib.load("le_status.pkl")
-except Exception as e:
-    print(f"Ошибка при загрузке модели или энкодеров: {e}")
-    exit(1)
+    # Загружаем модель и энкодеры
+    model = joblib.load(MODEL_FILES["model"]["filename"])
+
+    # Загружаем le_payment и le_status из репозитория
+    le_payment = joblib.load(MODEL_FILES["le_payment"]["filename"])
+    le_status = joblib.load(MODEL_FILES["le_status"]["filename"])
+
+    return model, le_payment, le_status
+
+# Загружаем модели и энкодеры
+model, le_payment, le_status = load_model_files()
 
 # Фичи, которые ожидаются на входе
 features = [
@@ -65,7 +69,6 @@ def predict():
         # Убедимся, что порядок фичей правильный
         input_df = input_df[features]
 
-        # Прогнозируем
         prediction = model.predict(input_df)[0]
         label = le_status.inverse_transform([prediction])[0]
 
