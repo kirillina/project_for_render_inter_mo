@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify 
+from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
 import os
@@ -21,12 +21,11 @@ MODEL_FILES = {
     }
 }
 
-#Загрузка с Google Drive
+# Загрузка с Google Drive
 def download_from_gdrive(file_id, filename):
     import gdown
     url = f"https://drive.google.com/uc?id={file_id}&confirm=t"
     gdown.download(url, filename, quiet=False)
-
 
 # Проверяем наличие и загружаем при необходимости
 for key, fileinfo in MODEL_FILES.items():
@@ -35,9 +34,13 @@ for key, fileinfo in MODEL_FILES.items():
         download_from_gdrive(fileinfo["gdrive_id"], fileinfo["filename"])
 
 # Загружаем модель и энкодеры
-model = joblib.load("model.pkl")
-le_payment = joblib.load("le_payment.pkl")
-le_status = joblib.load("le_status.pkl")
+try:
+    model = joblib.load("model.pkl")
+    le_payment = joblib.load("le_payment.pkl")
+    le_status = joblib.load("le_status.pkl")
+except Exception as e:
+    print(f"Ошибка при загрузке модели или энкодеров: {e}")
+    exit(1)
 
 # Фичи, которые ожидаются на входе
 features = [
@@ -62,6 +65,7 @@ def predict():
         # Убедимся, что порядок фичей правильный
         input_df = input_df[features]
 
+        # Прогнозируем
         prediction = model.predict(input_df)[0]
         label = le_status.inverse_transform([prediction])[0]
 
