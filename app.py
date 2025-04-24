@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # AWS конфигурация
-S3_BUCKET = "название-твоего-бакета"
+S3_BUCKET = "ml-model-bucket-inter"
 MODEL_FILES = {
     "model": "model.pkl",
     "le_payment": "le_payment.pkl",
