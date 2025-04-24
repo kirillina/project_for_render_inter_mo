@@ -4,6 +4,6 @@ pandas
 scikit-learn
 joblib
 gdown
-numpy==1.23.5
+numpy==1.24.4
 gunicorn
 
